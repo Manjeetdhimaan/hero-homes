@@ -626,26 +626,26 @@
                     <div class="row">
                       <div class="col-md-6 mb-3">
                         <div class="form-group">
-                          <input type="text" name="name" class="form-control
+                          <input type="text" id="name-index" name="name" class="form-control
                             form-control-lg form-control-a" placeholder="Your Name" required>
                         </div>
                       </div>
                       <div class="col-md-6 mb-3">
                         <div class="form-group">
-                          <input name="email" type="email" class="form-control
+                          <input name="email" id="email-index" type="email" class="form-control
                             form-control-lg form-control-a" placeholder="Your Email" required>
                         </div>
                       </div>
                       <div class="col-md-12 mb-3">
                         <div class="form-group">
-                          <input type="text" name="subject" class="form-control
+                          <input type="text" id="subject-index" name="subject" class="form-control
                             form-control-lg form-control-a"
                             placeholder="Subject" required>
                         </div>
                       </div>
                       <div class="col-md-12">
                         <div class="form-group">
-                          <textarea name="message" class="form-control"
+                          <textarea name="message" id="msg-index" class="form-control"
                             name="message" cols="45" rows="8"
                             placeholder="Message" required></textarea>
                         </div>
@@ -660,7 +660,7 @@
                       </div>
 
                       <div class="col-md-12 text-center">
-                        <button type="submit" class="btn btn-a">Send Message</button>
+                        <button type="submit" id="form-submit-index" class="btn btn-a">Send Message</button>
                       </div>
                     </div>
                   </form>
@@ -890,6 +890,12 @@
       </div>
     </footer><!-- End  Footer -->
 
+    <div id="myDIV"></div>
+    <div id="serverErrors"> </div>
+    <div id="serverSuccess"> </div>
+
+
+
     <div id="preloader"></div>
     <a class="back-to-top d-flex align-items-center justify-content-center"><i
         class="bi bi-arrow-up-short"></i></a>
@@ -901,6 +907,95 @@
 
     <!-- Template Main JS File -->
     <script src="assets/js/main.js"></script>
+
+    <script>
+      const submitBTN = document.getElementById('form-submit-index');
+      const serverErrorsDIV = document.getElementById('serverErrors');
+      const serverSuccessDIV = document.getElementById('serverSuccess');
+  
+      const name = document.getElementById('name-index');
+      const email = document.getElementById('email-index');
+      const subject = document.getElementById('subject-index');
+      const msg = document.getElementById('msg-index');
+  
+      const deleteBTN = document.getElementById('cross-index');
+  
+      closeErr = (e) => {
+        if(e === 'error') {
+          serverErrorsDIV.style.visibility = 'hidden';
+        serverErrorsDIV.style.opacity = '0';
+        serverErrorsDIV.style.transform = "translate(-50%, -50px)";
+        }
+        serverSuccessDIV.style.visibility = 'hidden';
+        serverSuccessDIV.style.opacity = '0';
+        serverSuccessDIV.style.transform = "translate(-50%, -50px)";
+      }
+  
+      submitBTN.addEventListener('click', (e) => {
+        e.preventDefault();
+        if ((!email || email.value === '') || (!name || name.value === '')) {
+          alert('Please fill all required values')
+          return;
+        }
+  
+        // const data = new FormData();
+        // data.append("json", JSON.stringify(payload));
+  
+        const div = document.createElement('div');
+        div.style.alignItems = 'center';
+        // const iCross = document.createElement('i');
+        // iCross.setAttribute('class', 'bi bi-backspace');
+        // iCross.style.padding = '0 0 6px 8px'
+        div.setAttribute("class", "loading");
+        div.setAttribute("id", "loading");
+        document.getElementById("myDIV").style.display = 'block';
+        document.getElementById("myDIV").appendChild(div);
+  
+        document.body.style.overflow = 'hidden'
+        fetch('https://www.api-email.dopedigital.in/api/send-contact-growing-bricks', {
+          method: "post",
+          body: JSON.stringify({
+            name: name.value,
+            email: email.value,
+            sub: subject.value,
+            msg: msg.value,
+            domain: 'Hero Homes',
+            sendEmailTo: "manjeetdhimaan80@gmail.com"
+          }),
+          headers: {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/json; charset=UTF-8'
+          }
+          //make sure to serialize your JSON body
+  
+        }).then(res => res.json()).then(res => {
+          document.getElementById("loading").remove();
+          document.getElementById("myDIV").style.display = 'none';
+          document.body.style.overflow = 'auto'
+          serverSuccessDIV.style.transform = "translate(-50%, 0)";
+          serverSuccessDIV.style.opacity = "1";
+          serverSuccessDIV.style.visibility = "visible";
+          serverSuccessDIV.innerHTML = res.message + `<i class="bi bi-backspace" id="cross-index" onClick="closeErr('success')">`;
+  
+          setTimeout(() => {
+            serverSuccessDIV.style.transform = "translate(-50%, -50px)";
+            serverSuccessDIV.style.opacity = "0";
+            serverSuccessDIV.style.visibility = "hidden";
+          }, 3000);
+        })
+          .catch(err => {
+            serverErrorsDIV.style.transform = "translate(-50%, 0)";
+            serverErrorsDIV.style.opacity = "1";
+            serverErrorsDIV.style.visibility = "visible";
+            serverErrorsDIV.innerHTML = err + `<i class="bi bi-backspace" id="cross-index" onClick="closeErr('error')">`;
+            // serverErrorsDIV.appendChild(iCross);
+            console.log(serverErrorsDIV)
+            document.getElementById("loading").remove();
+            document.getElementById("myDIV").style.display = 'none';
+            document.body.style.overflow = 'auto';
+          })
+      })
+    </script>
 
   </body>
 
